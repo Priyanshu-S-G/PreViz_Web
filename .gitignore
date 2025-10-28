@@ -1,0 +1,7 @@
+*.png
+*.jpg
+*.jpeg
+*.webp
+node_modules/
+.DS_Store
+uploads/
