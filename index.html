@@ -1,5 +1,360 @@
-<!doctype html><html><head><meta charset="utf-8"/><title>PreViz - Upload</title></head><body>
-<!-- upload page placeholder -->
+<!-- <!doctype html><html><head><meta charset="utf-8"/><title>PreViz - Upload</title></head><body>
 <input id="fileInput" type="file" accept="image/*"/>
 <button id="goBtn">Open Editor</button>
 </body></html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreViz - Upload Image</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'MS Sans Serif', Arial, sans-serif;
+            background: #008080;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .upload-container {
+            background: #c0c0c0;
+            border: 2px outset #fff;
+            padding: 30px;
+            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+            width: 500px;
+        }
+
+        .title-bar {
+            background: #000080;
+            color: #fff;
+            padding: 4px 8px;
+            font-weight: bold;
+            font-size: 11px;
+            margin: -30px -30px 20px -30px;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #000080;
+        }
+
+        .upload-area {
+            border: 2px inset #808080;
+            background: #fff;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .upload-area:hover {
+            background: #f0f0f0;
+        }
+
+        .upload-area.dragover {
+            background: #e0e0ff;
+            border-color: #000080;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 12px;
+            color: #666;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .preview-container {
+            border: 2px inset #808080;
+            background: #fff;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .preview-container.active {
+            display: block;
+        }
+
+        #preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+        }
+
+        .btn-win98 {
+            background: #c0c0c0;
+            border: 2px outset #fff;
+            padding: 8px 20px;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-win98:hover:not(:disabled) {
+            background: #d4d4d4;
+        }
+
+        .btn-win98:active:not(:disabled) {
+            border-style: inset;
+            box-shadow: inset -1px -1px 0 #dfdfdf, inset 1px 1px 0 #000;
+        }
+
+        .btn-win98:disabled {
+            color: #808080;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #000080;
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0000a0;
+        }
+
+        .error-message {
+            background: #ffcccc;
+            border: 2px solid #cc0000;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 11px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .supported-formats {
+            font-size: 9px;
+            color: #666;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <div class="title-bar">PreViz - Image Preprocessing Visualizer</div>
+        
+        <h1>Upload Image</h1>
+        
+        <div class="error-message" id="error-message"></div>
+        
+        <div class="upload-area" id="upload-area">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">
+                <strong>Click to select image</strong><br>
+                or drag and drop here
+            </div>
+        </div>
+        
+        <input type="file" id="file-input" accept="image/*">
+        
+        <div class="preview-container" id="preview-container">
+            <img id="preview-image" alt="Preview">
+            <div class="file-info" id="file-info"></div>
+        </div>
+        
+        <button class="btn-win98 btn-primary" id="proceed-btn" disabled>
+            Proceed to Editor
+        </button>
+        
+        <button class="btn-win98" id="clear-btn" disabled>
+            Clear Selection
+        </button>
+        
+        <div class="supported-formats">
+            Supported formats: JPG, JPEG, PNG, WebP only
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImage = document.getElementById('preview-image');
+        const fileInfo = document.getElementById('file-info');
+        const proceedBtn = document.getElementById('proceed-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        let currentFile = null;
+        let imageDataURL = null;
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        // Handle file
+        function handleFile(file) {
+            // Validate file type - only allow specific formats
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+            
+            if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
+                showError('Invalid file type. Only JPG, JPEG, PNG, and WebP images are supported.');
+                return;
+            }
+
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('Image size too large. Please select an image under 10MB.');
+                return;
+            }
+
+            currentFile = file;
+            hideError();
+
+            // Read file as DataURL
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                imageDataURL = e.target.result;
+                
+                // Show preview
+                previewImage.src = imageDataURL;
+                previewContainer.classList.add('active');
+                
+                // Show file info
+                const sizeKB = (file.size / 1024).toFixed(2);
+                fileInfo.textContent = `${file.name} (${sizeKB} KB)`;
+                
+                // Enable buttons
+                proceedBtn.disabled = false;
+                clearBtn.disabled = false;
+            };
+
+            reader.onerror = () => {
+                showError('Failed to read image file. Please try again.');
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // Clear selection
+        clearBtn.addEventListener('click', () => {
+            currentFile = null;
+            imageDataURL = null;
+            fileInput.value = '';
+            previewContainer.classList.remove('active');
+            proceedBtn.disabled = true;
+            clearBtn.disabled = true;
+            hideError();
+        });
+
+        // Proceed to editor
+        proceedBtn.addEventListener('click', () => {
+            if (!imageDataURL) {
+                showError('No image selected.');
+                return;
+            }
+
+            try {
+                // Store image in sessionStorage
+                sessionStorage.setItem('previz_image', imageDataURL);
+                sessionStorage.setItem('previz_filename', currentFile.name);
+                
+                // Redirect to editor
+                window.location.href = 'editor.html';
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    showError('Image too large to store. Please try a smaller image.');
+                } else {
+                    showError('Failed to process image. Please try again.');
+                }
+            }
+        });
+
+        // Error handling
+        function showError(message) {
+            errorMessage.textContent = '⚠️ ' + message;
+            errorMessage.classList.add('active');
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('active');
+        }
+
+        // Check if returning from editor
+        window.addEventListener('load', () => {
+            const hasImage = sessionStorage.getItem('previz_image');
+            if (hasImage) {
+                // User navigated back from editor
+                const filename = sessionStorage.getItem('previz_filename') || 'previous-image';
+                const confirmReturn = confirm(`Continue editing "${filename}"?`);
+                
+                if (confirmReturn) {
+                    window.location.href = 'editor.html';
+                } else {
+                    // Clear session if user wants fresh start
+                    sessionStorage.removeItem('previz_image');
+                    sessionStorage.removeItem('previz_filename');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

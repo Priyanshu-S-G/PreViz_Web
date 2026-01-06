@@ -1,2 +1,4 @@
 // neighbourhoodOps.js - neighbours/connectivity (placeholder)
-export function showNeighbours(mat,x,y){ return; }
+function showNeighbours(mat,x,y){ return; }
+
+window.showNeighbours = showNeighbours;

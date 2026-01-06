@@ -1,9 +1,142 @@
+<!-- 
 <!doctype html><html><head><meta charset="utf-8"/><title>PreViz - Editor</title>
 <link rel="stylesheet" href="style.css"/></head><body>
-<!-- editor placeholder -->
 <div id="topbar"><button id="btnClear">Clear</button><button id="btnNew">New</button><button id="btnDownload">Download</button></div>
 <main id="main"><section id="leftPanel"><canvas id="canvasSrc"></canvas></section><section id="centerPanel"><canvas id="canvasDst"></canvas></section><aside id="optionsTab" class="hidden"></aside></main>
 <nav id="toolbar"></nav>
 <script src="libs/opencv.js"></script>
 <script src="scripts/state.js"></script><script src="scripts/uiHelpers.js"></script><script src="scripts/script.js"></script>
 </body></html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreViz - Image Preprocessing Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Bar -->
+    <div id="top-bar">
+        <button id="btn-clear-output" class="btn-win98">Clear Output</button>
+        <button id="btn-new-upload" class="btn-win98">New Upload</button>
+        <button id="btn-download-output" class="btn-win98">Download Output</button>
+    </div>
+
+    <!-- Main Workspace -->
+    <div id="workspace">
+        <!-- Input Canvas -->
+        <div class="canvas-zone">
+            <div class="canvas-label">INPUT IMAGE</div>
+            <div class="canvas-container">
+                <canvas id="input-canvas" width="512" height="384"></canvas>
+            </div>
+        </div>
+
+        <!-- Output Canvas -->
+        <div class="canvas-zone">
+            <div class="canvas-label">OUTPUT PREVIEW</div>
+            <div class="canvas-container">
+                <canvas id="output-canvas" width="512" height="384"></canvas>
+            </div>
+        </div>
+
+        <!-- Options Panel (Popup Tab) -->
+        <div id="options-panel">
+            <div id="panel-header">
+                <span id="panel-header-title">Options</span>
+                <div id="panel-close-btn">×</div>
+            </div>
+            <div id="panel-content">
+                <div id="panel-title">Select an operation</div>
+                <div id="panel-description">Click a tool button below to configure settings</div>
+                <div class="separator"></div>
+                
+                <!-- Dynamic Controls Container -->
+                <div id="panel-controls">
+                    <!-- Controls will be injected here based on selected operation -->
+                </div>
+            </div>
+            <div id="panel-actions">
+                <button id="btn-preview" class="btn-win98">Preview</button>
+                <button id="btn-apply" class="btn-win98">Apply</button>
+                <button id="btn-cancel" class="btn-win98">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Toolbar -->
+    <div id="toolbar">
+        <!-- Kernel Operations -->
+        <button id="btn-blur" class="tool-btn" data-operation="blur" data-category="kernel">Box Blur</button>
+        <button id="btn-gaussian" class="tool-btn" data-operation="gaussian" data-category="kernel">Gaussian</button>
+        <button id="btn-median" class="tool-btn" data-operation="median" data-category="kernel">Median</button>
+        <button id="btn-mean" class="tool-btn" data-operation="mean" data-category="kernel">Mean</button>
+        <button id="btn-max" class="tool-btn" data-operation="max" data-category="kernel">Max Filter</button>
+        <button id="btn-min" class="tool-btn" data-operation="min" data-category="kernel">Min Filter</button>
+        
+        <div class="toolbar-separator"></div>
+        
+        <!-- Edge Detection -->
+        <button id="btn-sobel" class="tool-btn" data-operation="sobel" data-category="edge">Sobel</button>
+        <button id="btn-canny" class="tool-btn" data-operation="canny" data-category="edge">Canny</button>
+        <button id="btn-prewitt" class="tool-btn" data-operation="prewitt" data-category="edge">Prewitt</button>
+        <button id="btn-laplace" class="tool-btn" data-operation="laplace" data-category="edge">Laplace</button>
+        <button id="btn-harris" class="tool-btn" data-operation="harris" data-category="edge">Harris</button>
+        
+        <div class="toolbar-separator"></div>
+        
+        <!-- Morphology Operations -->
+        <button id="btn-dilate" class="tool-btn" data-operation="dilate" data-category="morph">Dilate</button>
+        <button id="btn-erode" class="tool-btn" data-operation="erode" data-category="morph">Erode</button>
+        <button id="btn-open" class="tool-btn" data-operation="open" data-category="morph">Open</button>
+        <button id="btn-close" class="tool-btn" data-operation="close" data-category="morph">Close</button>
+        <button id="btn-hole-fill" class="tool-btn" data-operation="holefill" data-category="morph">Hole Fill</button>
+        
+        <div class="toolbar-separator"></div>
+        
+        <!-- Neighbourhood Operations -->
+        <button id="btn-neighbours-4" class="tool-btn" data-operation="neighbours4" data-category="neighbourhood">4-Neighbours</button>
+        <button id="btn-neighbours-8" class="tool-btn" data-operation="neighbours8" data-category="neighbourhood">8-Neighbours</button>
+        <button id="btn-connectivity" class="tool-btn" data-operation="connectivity" data-category="neighbourhood">Connectivity</button>
+        <button id="btn-components" class="tool-btn" data-operation="components" data-category="neighbourhood">Components</button>
+        
+        <div class="toolbar-separator"></div>
+        
+        <!-- Texture Operations -->
+        <button id="btn-glcm" class="tool-btn" data-operation="glcm" data-category="texture">GLCM</button>
+        <button id="btn-moments" class="tool-btn" data-operation="moments" data-category="texture">Moments</button>
+        
+        <div class="toolbar-separator"></div>
+        
+        <!-- Basic Operations -->
+        <button id="btn-threshold" class="tool-btn" data-operation="threshold" data-category="basic">Threshold</button>
+        <button id="btn-quantize" class="tool-btn" data-operation="quantize" data-category="basic">Quantize</button>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // OpenCV.js loading configuration
+        var Module = {
+            onRuntimeInitialized: function() {
+                console.log('[OpenCV.js] Runtime initialized');
+                if (typeof onOpenCvReady === 'function') {
+                    onOpenCvReady();
+                }
+            }
+        };
+    </script>
+    <script async src="libs/opencv.js"></script>
+    <script src="scripts/state.js"></script>
+    <script src="scripts/uiHelpers.js"></script>
+    <script src="scripts/imageOps/basicOps.js"></script>
+    <script src="scripts/imageOps/kernelOps.js"></script>
+    <script src="scripts/imageOps/edgeOps.js"></script>
+    <script src="scripts/imageOps/morphOps.js"></script>
+    <script src="scripts/imageOps/neighbourhoodOps.js"></script>
+    <script src="scripts/imageOps/textureOps.js"></script>
+    <script src="scripts/script.js"></script>
+</body>
+</html>

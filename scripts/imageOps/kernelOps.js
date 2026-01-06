@@ -1,2 +1,4 @@
-// kernelOps.js - box/avg/weighted/max/min filters (placeholders)
-export function boxFilter(mat, k){ return mat; }
+// kernelOps.js - box/avg/weighted/mean/median/gaussian/max/min filters (placeholders)
+function boxFilter(mat, k){ return mat; }
+
+window.boxFilter = boxFilter;

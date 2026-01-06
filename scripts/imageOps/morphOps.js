@@ -1,2 +1,4 @@
 // morphOps.js - dilate/erode/open/close/holeFill (placeholders)
-export function applyDilate(mat, k){ return mat; }
+function applyDilate(mat, k){ return mat; }
+
+window.applyDilate = applyDilate;

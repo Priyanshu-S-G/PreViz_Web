@@ -1,2 +1,4 @@
 // textureOps.js - GLCM / moments (placeholder)
-export function calcGLCM(mat){ return {}; }
+function calcGLCM(mat){ return {}; }
+
+window.calcGLCM = calcGLCM;

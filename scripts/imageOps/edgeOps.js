@@ -1,2 +1,4 @@
-// edgeOps.js - sobel, canny, harris (placeholders)
-export function applySobel(mat){ return mat; }
+// edgeOps.js - sobel, prewitt, canny, harris (placeholders)
+function applySobel(mat){ return mat; }
+
+window.applySobel = applySobel;
