@@ -1,9 +1,3 @@
-// uiHelpers.js - UI helpers (placeholder)
-/*
-function showOptionsTab(){ document.getElementById('optionsTab').classList.remove('hidden'); }
-function hideOptionsTab(){ document.getElementById('optionsTab').classList.add('hidden'); }
-*/
-
 // uiHelpers.js - Popup tab + visuals
 // Purpose: All UI rendering that isn't raw HTML
 
@@ -22,6 +16,11 @@ let currentCategory = null;
 function openOperationPanel(operation, category) {
     currentOperation = operation;
     currentCategory = category;
+    
+    // Set current operation in state
+    if (typeof setCurrentOperation === 'function') {
+        setCurrentOperation(operation);
+    }
     
     const panel = document.getElementById('options-panel');
     const panelTitle = document.getElementById('panel-title');
@@ -283,13 +282,50 @@ function getOperationMetadata(operation, category) {
             ],
             extras: ['histogram']
         },
+        colorToGray: {
+            title: 'COLOR TO GRAYSCALE',
+            description: 'Convert color image to grayscale',
+            controls: [
+                { type: 'info', text: 'Converts RGB/RGBA image to single-channel grayscale' }
+            ]
+        },
+        invert: {
+            title: 'INVERT IMAGE',
+            description: 'Invert all pixel values (bitwise NOT)',
+            controls: [
+                { type: 'info', text: 'Black becomes white, white becomes black' }
+            ]
+        },
+        transpose: {
+            title: 'TRANSPOSE IMAGE',
+            description: 'Flip image over its diagonal',
+            controls: [
+                { type: 'info', text: 'Rows become columns, columns become rows' }
+            ]
+        },
+        bgrRgb: {
+            title: 'BGR ↔ RGB CONVERSION',
+            description: 'Swap red and blue channels',
+            controls: [
+                { type: 'info', text: 'Useful for format conversions between OpenCV and other libraries' }
+            ]
+        },
         quantize: {
             title: 'COLOR QUANTIZATION',
             description: 'Reduce number of colors',
             controls: [
                 { type: 'slider', id: 'levels', label: 'Color Levels', min: 2, max: 32, step: 1, value: 8, hint: 'Per channel' }
             ]
-        }
+        },
+        histEq: {
+            title: 'HISTOGRAM EQUALIZATION',
+            description: 'Enhance contrast using histogram equalization',
+            controls: [
+                { type: 'info', text: 'Works best on grayscale images' },
+                { type: 'checkbox', id: 'show-histogram', label: 'Show before/after histogram', checked: true }
+            ],
+            extras: ['histogram']
+        },
     };
     
     return metadata[operation] || {

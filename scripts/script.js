@@ -6,12 +6,6 @@ document.addEventListener('DOMContentLoaded', initEditor);
 
 // Main application logic for PreViz editor
 
-// Wait for OpenCV to load
-// Main application logic for PreViz editor
-
-// Wait for OpenCV to load
-// Main application logic for PreViz editor
-
 // Global flag to track OpenCV status
 let opencvReady = false;
 
@@ -186,6 +180,8 @@ function displayMat(canvasId, mat) {
 
 // Make displayMat available globally for operation modules
 window.displayMat = displayMat;
+window.previewCurrentOperation = previewCurrentOperation;
+window.applyCurrentOperation = applyCurrentOperation;
 
 // Top bar button handlers
 function setupTopBarHandlers() {
@@ -294,28 +290,138 @@ function setupPanelHandlers() {
 
     // Preview operation
     previewBtn.addEventListener('click', () => {
-        // This should be handled by the specific operation modules
-        if (typeof previewCurrentOperation === 'function') {
-            previewCurrentOperation();
-        } else {
-            console.warn('previewCurrentOperation function not found');
-            alert('Preview functionality will be implemented by operation modules');
-        }
+        previewCurrentOperation();
     });
 
     // Apply operation
     applyBtn.addEventListener('click', () => {
-        // This should be handled by the specific operation modules
-        if (typeof applyCurrentOperation === 'function') {
-            applyCurrentOperation();
-        } else {
-            console.warn('applyCurrentOperation function not found');
-            alert('Apply functionality will be implemented by operation modules');
+        applyCurrentOperation();
+    });
+}
+
+/**
+ * Preview the current operation
+ */
+function previewCurrentOperation() {
+    const srcMat = getSourceMat();
+    
+    if (!srcMat) {
+        alert('No source image available');
+        return;
+    }
+    
+    const operation = getCurrentOperation();
+    
+    if (!operation) {
+        alert('No operation selected');
+        return;
+    }
+    
+    console.log(`[script.js] Previewing operation: ${operation}`);
+    
+    try {
+        // Get control values from UI
+        const params = getControlValues();
+        
+        // Call the appropriate operation function
+        let result = null;
+        
+        switch(operation) {
+            // Basic operations
+            case 'colorToGray':
+                result = colorToGray(srcMat);
+                break;
+            case 'invert':
+                result = invertImage(srcMat);
+                break;
+            case 'transpose':
+                result = transposeImage(srcMat);
+                break;
+            
+            // Add other operations here as they're implemented
+            default:
+                alert(`Operation "${operation}" not yet implemented`);
+                return;
         }
         
-        // Optionally close panel after apply
-        // closePanel();
-    });
+        if (result) {
+            // Display result on output canvas
+            displayMat('output-canvas', result);
+            
+            // Clean up
+            result.delete();
+            
+            console.log(`[script.js] ✓ Preview complete`);
+        }
+        
+    } catch (error) {
+        console.error('[script.js] Preview error:', error);
+        alert('Error during preview: ' + error.message);
+    }
+}
+
+/**
+ * Apply the current operation permanently
+ */
+function applyCurrentOperation() {
+    const srcMat = getSourceMat();
+    
+    if (!srcMat) {
+        alert('No source image available');
+        return;
+    }
+    
+    const operation = getCurrentOperation();
+    
+    if (!operation) {
+        alert('No operation selected');
+        return;
+    }
+    
+    console.log(`[script.js] Applying operation: ${operation}`);
+    
+    try {
+        // Get control values from UI
+        const params = getControlValues();
+        
+        // Call the appropriate operation function
+        let result = null;
+        
+        switch(operation) {
+            // Basic operations
+            case 'colorToGray':
+                result = colorToGray(srcMat);
+                break;
+            case 'invert':
+                result = invertImage(srcMat);
+                break;
+            case 'transpose':
+                result = transposeImage(srcMat);
+                break;
+            
+            // Add other operations here as they're implemented
+            default:
+                alert(`Operation "${operation}" not yet implemented`);
+                return;
+        }
+        
+        if (result) {
+            // Store result in state
+            setResult(result);
+            
+            // Display result on output canvas
+            displayMat('output-canvas', result);
+            
+            // Don't delete result - it's now stored in state
+            
+            console.log(`[script.js] ✓ Operation applied`);
+            alert('Operation applied successfully!');
+        }
+        
+    } catch (error) {
+        console.error('[script.js] Apply error:', error);
+        alert('Error applying operation: ' + error.message);
+    }
 }
 
 // Initialize when DOM is ready
