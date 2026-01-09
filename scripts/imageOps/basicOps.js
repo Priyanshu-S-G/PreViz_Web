@@ -1,4 +1,4 @@
-// basicOps.js - color/gray transforms, invert, transpose, BGR/RGB, Quantize, HistEq (placeholders)
+// basicOps.js - color/gray transforms, invert, transpose, BGR/RGB, Quantize, HistEq
 function colorToGray(src) {
   let dst = new cv.Mat();
   if (src.channels() === 1) {
@@ -16,7 +16,7 @@ function invertImage(src) {
 }
 
 function transposeImage(src) {
-  let dst = new cv.Mat();z
+  let dst = new cv.Mat();
   cv.transpose(src, dst);
   return dst;
 }

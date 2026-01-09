@@ -324,7 +324,7 @@ function getOperationMetadata(operation, category) {
                 { type: 'info', text: 'Works best on grayscale images' },
                 { type: 'checkbox', id: 'show-histogram', label: 'Show before/after histogram', checked: true }
             ],
-            extras: ['histogram']
+            extras: ['histogram-comparison']
         },
     };
     
@@ -554,6 +554,38 @@ function createExtraView(type) {
             container.appendChild(histCanvas);
             break;
             
+        case 'histogram-comparison':
+            container.innerHTML = '<div class="separator"></div>';
+            
+            const beforeLabel = document.createElement('div');
+            beforeLabel.style.fontSize = '10px';
+            beforeLabel.style.fontWeight = 'bold';
+            beforeLabel.style.marginTop = '8px';
+            beforeLabel.textContent = 'Before:';
+            container.appendChild(beforeLabel);
+            
+            const histCanvasBefore = document.createElement('canvas');
+            histCanvasBefore.id = 'histogram-before';
+            histCanvasBefore.className = 'histogram-canvas';
+            histCanvasBefore.width = 256;
+            histCanvasBefore.height = 80;
+            container.appendChild(histCanvasBefore);
+            
+            const afterLabel = document.createElement('div');
+            afterLabel.style.fontSize = '10px';
+            afterLabel.style.fontWeight = 'bold';
+            afterLabel.style.marginTop = '8px';
+            afterLabel.textContent = 'After:';
+            container.appendChild(afterLabel);
+            
+            const histCanvasAfter = document.createElement('canvas');
+            histCanvasAfter.id = 'histogram-after';
+            histCanvasAfter.className = 'histogram-canvas';
+            histCanvasAfter.width = 256;
+            histCanvasAfter.height = 80;
+            container.appendChild(histCanvasAfter);
+            break;
+            
         case 'metrics-output':
             container.innerHTML = '<div class="separator"></div>';
             const metrics = document.createElement('div');
@@ -609,7 +641,7 @@ function getControlValues() {
 /**
  * Draw histogram on canvas
  * @param {HTMLCanvasElement} canvas - Canvas to draw on
- * @param {Array} histData - Histogram data array
+ * @param {Array} histData - Histogram data array (256 bins)
  */
 function drawHistogram(canvas, histData) {
     const ctx = canvas.getContext('2d');
@@ -625,8 +657,62 @@ function drawHistogram(canvas, histData) {
     ctx.fillStyle = '#000080';
     histData.forEach((val, i) => {
         const barHeight = (val / maxVal) * height;
-        ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1, barHeight);
+        ctx.fillRect(i * barWidth, height - barHeight, barWidth, barHeight);
     });
+}
+
+/**
+ * Calculate histogram from grayscale cv.Mat
+ * @param {cv.Mat} mat - Grayscale OpenCV Mat
+ * @returns {Array} Histogram data (256 bins)
+ */
+function calculateHistogram(mat) {
+    const hist = new Array(256).fill(0);
+    
+    // Ensure grayscale
+    let gray = mat;
+    let needsDelete = false;
+    
+    if (mat.channels() !== 1) {
+        gray = new cv.Mat();
+        cv.cvtColor(mat, gray, cv.COLOR_RGBA2GRAY);
+        needsDelete = true;
+    }
+    
+    // Count pixel values
+    for (let i = 0; i < gray.rows; i++) {
+        for (let j = 0; j < gray.cols; j++) {
+            const val = gray.ucharPtr(i, j)[0];
+            hist[val]++;
+        }
+    }
+    
+    if (needsDelete) {
+        gray.delete();
+    }
+    
+    return hist;
+}
+
+/**
+ * Draw before/after histogram comparison
+ * @param {cv.Mat} beforeMat - Original mat
+ * @param {cv.Mat} afterMat - Processed mat
+ */
+function drawHistogramComparison(beforeMat, afterMat) {
+    const beforeCanvas = document.getElementById('histogram-before');
+    const afterCanvas = document.getElementById('histogram-after');
+    
+    if (!beforeCanvas || !afterCanvas) {
+        console.warn('Histogram canvases not found');
+        return;
+    }
+    
+    const beforeHist = calculateHistogram(beforeMat);
+    const afterHist = calculateHistogram(afterMat);
+    
+    drawHistogram(beforeCanvas, beforeHist);
+    drawHistogram(afterCanvas, afterHist);
 }
 
 /**
@@ -737,6 +823,8 @@ window.openOperationPanel = openOperationPanel;
 window.closeOperationPanel = closeOperationPanel;
 window.getControlValues = getControlValues;
 window.drawHistogram = drawHistogram;
+window.calculateHistogram = calculateHistogram;
+window.drawHistogramComparison = drawHistogramComparison;
 window.drawOverlay = drawOverlay;
 window.displayMetrics = displayMetrics;
 window.displayGLCMMatrix = displayGLCMMatrix;

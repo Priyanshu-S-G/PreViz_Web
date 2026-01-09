@@ -199,6 +199,9 @@ function setupTopBarHandlers() {
             drawPlaceholder(ctx, 'Output Cleared');
         }
         
+        // Hide "Use Output as Input" button
+        document.getElementById('btn-use-output-as-input').style.display = 'none';
+        
         // Close panel
         closeOperationPanel();
         
@@ -206,8 +209,48 @@ function setupTopBarHandlers() {
     });
 
     document.getElementById('btn-new-upload').addEventListener('click', () => {
-        // Redirect to index.html
-        window.location.href = 'index.html';
+        // Confirm before leaving
+        if (confirm('Return to upload page? Current work will be lost.')) {
+            // Clear session storage
+            sessionStorage.removeItem('previz_image');
+            sessionStorage.removeItem('previz_filename');
+            
+            // Redirect to index.html
+            window.location.href = 'index.html';
+        }
+    });
+    
+    document.getElementById('btn-use-output-as-input').addEventListener('click', () => {
+        const dstMat = getResultMat();
+        
+        if (!dstMat) {
+            alert('No output available to use as input');
+            return;
+        }
+        
+        if (confirm('Replace input image with current output? This cannot be undone.')) {
+            // Clone the result mat
+            const newSrc = dstMat.clone();
+            
+            // Set as new source
+            setSource(newSrc);
+            
+            // Display on input canvas
+            displayMat('input-canvas', newSrc);
+            
+            // Clear output (since it's now the input)
+            resetOutput();
+            displayMat('output-canvas', newSrc);
+            
+            // Hide the button
+            document.getElementById('btn-use-output-as-input').style.display = 'none';
+            
+            // Clean up
+            newSrc.delete();
+            
+            console.log('[script.js] Output replaced input image');
+            alert('Output is now the new input image');
+        }
     });
 
     document.getElementById('btn-download-output').addEventListener('click', () => {
@@ -300,7 +343,7 @@ function setupPanelHandlers() {
 }
 
 /**
- * Preview the current operation
+ * Preview the current operation (temporary, uses source)
  */
 function previewCurrentOperation() {
     const srcMat = getSourceMat();
@@ -337,6 +380,23 @@ function previewCurrentOperation() {
             case 'transpose':
                 result = transposeImage(srcMat);
                 break;
+            case 'bgrRgb':
+                result = swapBGRRGB(srcMat);
+                break;
+            case 'quantize':
+                const levels = params['levels'] || 8;
+                result = quantizeImage(srcMat, levels);
+                break;
+            case 'histEq':
+                result = histogramEqualization(srcMat);
+                
+                // Show histogram comparison if checkbox is checked
+                if (params['show-histogram']) {
+                    setTimeout(() => {
+                        drawHistogramComparison(srcMat, result);
+                    }, 100);
+                }
+                break;
             
             // Add other operations here as they're implemented
             default:
@@ -361,7 +421,7 @@ function previewCurrentOperation() {
 }
 
 /**
- * Apply the current operation permanently
+ * Apply the current operation permanently (saves to state, keeps source unchanged)
  */
 function applyCurrentOperation() {
     const srcMat = getSourceMat();
@@ -398,6 +458,24 @@ function applyCurrentOperation() {
             case 'transpose':
                 result = transposeImage(srcMat);
                 break;
+            case 'bgrRgb':
+                result = swapBGRRGB(srcMat);
+                break;
+            case 'quantize':
+                const levels = params['levels'] || 8;
+                result = quantizeImage(srcMat, levels);
+                break;
+            case 'histEq':
+                result = histogramEqualization(srcMat);
+                
+                // Show histogram comparison if checkbox is checked
+                if (params['show-histogram']) {
+                    // Wait for result to be displayed first
+                    setTimeout(() => {
+                        drawHistogramComparison(srcMat, result);
+                    }, 100);
+                }
+                break;
             
             // Add other operations here as they're implemented
             default:
@@ -406,16 +484,18 @@ function applyCurrentOperation() {
         }
         
         if (result) {
-            // Store result in state
+            // Store result in state (dstMat)
             setResult(result);
             
             // Display result on output canvas
             displayMat('output-canvas', result);
             
+            // Show "Use Output as Input" button
+            document.getElementById('btn-use-output-as-input').style.display = 'inline-block';
+            
             // Don't delete result - it's now stored in state
             
             console.log(`[script.js] ✓ Operation applied`);
-            alert('Operation applied successfully!');
         }
         
     } catch (error) {

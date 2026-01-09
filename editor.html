@@ -22,6 +22,7 @@
     <div id="top-bar">
         <button id="btn-clear-output" class="btn-win98">Clear Output</button>
         <button id="btn-new-upload" class="btn-win98">New Upload</button>
+        <button id="btn-use-output-as-input" class="btn-win98" style="display: none;">Use Output as Input</button>
         <button id="btn-download-output" class="btn-win98">Download Output</button>
     </div>
 
@@ -85,11 +86,22 @@
         <!-- Edge Operations -->
         <div class="toolbar-category">
             <div class="category-label">EDGE OPS</div>
-            <div class="category-buttons">
-                <button id="btn-sobel" class="tool-btn" data-operation="sobel" data-category="edge">Sobel</button>
-                <button id="btn-prewitt" class="tool-btn" data-operation="prewitt" data-category="edge">Prewitt</button>
-                <button id="btn-canny" class="tool-btn" data-operation="canny" data-category="edge">Canny</button>
-                <button id="btn-harris" class="tool-btn" data-operation="harris" data-category="edge">Harris</button>
+            <div class="category-buttons category-edge">
+                <div class="subcategory">
+                    <div class="subcategory-label">FIRST DERIVATIVE</div>
+                    <button id="btn-sobel" class="tool-btn" data-operation="sobel" data-category="edge">Sobel</button>
+                    <button id="btn-prewitt" class="tool-btn" data-operation="prewitt" data-category="edge">Prewitt</button>
+                    <button id="btn-canny" class="tool-btn" data-operation="canny" data-category="edge">Canny</button>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-label">SECOND DERIVATIVE</div>
+                    <button id="btn-laplace" class="tool-btn" data-operation="laplace" data-category="edge">Laplace</button>
+                    <button id="btn-log" class="tool-btn" data-operation="log" data-category="edge">LoG</button>
+                </div>
+                <div class="subcategory">
+                    <div class="subcategory-label">CORNER DETECTION</div>
+                    <button id="btn-harris" class="tool-btn" data-operation="harris" data-category="edge">Harris</button>
+                </div>
             </div>
         </div>
 
@@ -98,9 +110,7 @@
             <div class="category-label">KERNEL FILTERS</div>
             <div class="category-buttons">
                 <button id="btn-box-filter" class="tool-btn" data-operation="box" data-category="kernel">Box Filter</button>
-                <button id="btn-average" class="tool-btn" data-operation="average" data-category="kernel">Average</button>
                 <button id="btn-weighted-avg" class="tool-btn" data-operation="weightedAvg" data-category="kernel">Weighted Avg</button>
-                <button id="btn-mean" class="tool-btn" data-operation="mean" data-category="kernel">Mean</button>
                 <button id="btn-median" class="tool-btn" data-operation="median" data-category="kernel">Median</button>
                 <button id="btn-gaussian" class="tool-btn" data-operation="gaussian" data-category="kernel">Gaussian</button>
                 <button id="btn-max-filter" class="tool-btn" data-operation="max" data-category="kernel">Max Filter</button>
