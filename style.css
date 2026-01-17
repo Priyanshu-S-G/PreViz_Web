@@ -7,7 +7,11 @@
 body {
     font-family: 'MS Sans Serif', Arial, sans-serif;
     background: #008080;
-    overflow: hidden;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
 /* Top Bar */
@@ -41,10 +45,13 @@ body {
 
 /* Main Workspace */
 #workspace {
+    flex: 1;
     display: flex;
-    height: calc(100vh - 120px);
     background: #008080;
     position: relative;
+    overflow-x: hidden;
+    overflow-y: visible;
+    z-index: 1;
 }
 
 .canvas-zone {
@@ -326,16 +333,43 @@ input[type="radio"] {
 
 /* Bottom Toolbar */
 #toolbar {
+    flex-shrink: 0;
     background: #c0c0c0;
     border-top: 2px groove #808080;
     padding: 8px;
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
-    height: 72px;
+    height: 150px; /* set what you actually want */
     overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
+    z-index: 1000;
 }
+
+.toolbar-category {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* centers label over buttons */
+    padding: 3px 6px;
+    min-width: 160px;      /* keeps sections visually separated */
+    position: relative;
+}
+
+.toolbar-divider {
+    align-self: stretch;          /* full toolbar height */
+    width: 4px;
+    margin: 0 1px;
+
+    background: #808080;          /* mid grey core */
+
+    /* Win98 groove illusion */
+    box-shadow:
+        inset 1px 0 0 #dfdfdf,    /* light edge */
+        inset -1px 0 0 #404040;   /* dark edge */
+}
+
 
 .toolbar-separator {
     width: 2px;
@@ -344,6 +378,20 @@ input[type="radio"] {
     border-left: 1px solid #000;
     border-right: 1px solid #dfdfdf;
     margin: 0 4px;
+}
+
+.category-label {
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.category-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 6px;
 }
 
 .tool-btn {
@@ -371,6 +419,45 @@ input[type="radio"] {
     border-style: inset;
     box-shadow: inset -1px -1px 0 #dfdfdf, inset 1px 1px 0 #000;
     background: #a0a0a0;
+}
+
+/* Kernel drop-up menu */
+/* Kernel menu – neutral by default */
+.kernel-menu {
+    display: none;
+    background: #c0c0c0;
+    border: 2px outset #fff;
+    box-shadow:
+        inset 1px 1px 0 #dfdfdf,
+        inset -1px -1px 0 #808080,
+        2px 2px 6px rgba(0,0,0,0.4);
+    padding: 4px;
+    min-width: 160px;
+    z-index: 99999;
+}
+
+/* When floating above toolbar */
+.kernel-menu.body-anchored {
+    display: block;
+    position: fixed;        /* 🔑 viewport anchored */
+    visibility: hidden;     /* measured first, then shown */
+}
+
+.kernel-menu.hidden {
+    display: none;
+}
+
+.kernel-item {
+    padding: 6px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.kernel-item:hover {
+    background: #000080;
+    color: white;
+    border: 1px solid #fff;
 }
 
 /* Hidden by default */

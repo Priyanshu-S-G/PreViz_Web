@@ -283,7 +283,7 @@ function setupTopBarHandlers() {
 
 // Toolbar button handlers
 function setupToolbarHandlers() {
-    const toolButtons = document.querySelectorAll('.tool-btn');
+    const toolButtons = document.querySelectorAll('.tool-btn:not([data-role="kernel-dropdown"])');
     
     toolButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -292,7 +292,8 @@ function setupToolbarHandlers() {
             const category = btn.dataset.category;
             
             // Remove active state from all buttons
-            toolButtons.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tool-btn')
+                .forEach(b => b.classList.remove('active'));
             
             // Add active state to clicked button
             btn.classList.add('active');
@@ -306,6 +307,161 @@ function setupToolbarHandlers() {
             }
         });
     });
+
+    // Kernel filter drop-up handling
+    // ------------------ KERNEL: body-mounted drop-up (robust) ------------------
+    const kernelBtn = document.getElementById('kernel-main-btn');
+    const kernelMenu = document.getElementById('kernel-menu');
+    const kernelCategory = document.getElementById('kernel-category');
+
+    if (kernelBtn && kernelMenu && kernelCategory) {
+    // Guard: ensure we only bind once (prevents duplicate handlers on hot-reload)
+    if (!kernelBtn.dataset.dropdownBound) {
+        kernelBtn.dataset.dropdownBound = '1';
+
+        // helper: open menu as child of body, positioned above the kernel category
+        function openKernelMenuBody() {
+        if (kernelMenu.parentElement === document.body) {
+            closeKernelMenuBody();
+            return;
+        }
+
+        // Move menu to body
+        document.body.appendChild(kernelMenu);
+
+        // Prepare menu for measurement:
+        kernelMenu.classList.remove('hidden');
+        kernelMenu.classList.add('body-anchored');
+
+        // force it to be rendered but invisible
+        kernelMenu.style.display = 'block';
+        kernelMenu.style.visibility = 'hidden';
+        kernelMenu.style.left = '0px';
+        kernelMenu.style.top = '0px';
+
+        // Debugging lines (can remove later) to inspect computed style
+        console.log('computed before measure:',
+            window.getComputedStyle(kernelMenu).display,
+            window.getComputedStyle(kernelMenu).visibility,
+            'inline display:', kernelMenu.style.display,
+            'inline visibility:', kernelMenu.style.visibility);
+
+        // double rAF + a read to force reflow and let browser compute sizes
+        requestAnimationFrame(() => {
+            // force reflow
+            const force = kernelMenu.offsetWidth;
+            requestAnimationFrame(() => {
+            const btnRect  = kernelBtn.getBoundingClientRect();
+            const anchorRect = kernelCategory.getBoundingClientRect();
+            const menuRect = kernelMenu.getBoundingClientRect();
+
+            console.log('measure -> btnRect, anchorRect, menuRect', btnRect, anchorRect, menuRect);
+
+            // if menu still has zero size, bail with a visible fallback
+            if (!menuRect.width || !menuRect.height) {
+                // fallback: place it above the kernel category left edge
+                kernelMenu.style.left = (anchorRect.left + window.scrollX) + 'px';
+                kernelMenu.style.top  = (btnRect.top + window.scrollY - 6 - 200) + 'px'; // arbitrary fallback
+                kernelMenu.style.visibility = 'visible';
+                console.warn('kernel menu measured 0 - using fallback placement');
+                return;
+            }
+
+            // center horizontally on anchor (category)
+            let left = Math.round(anchorRect.left + anchorRect.width / 2 - menuRect.width / 2);
+            let top  = Math.round(btnRect.top - menuRect.height - 6); // drop-up
+
+            // clamp horizontally
+            const viewportWidth = document.documentElement.clientWidth;
+            const padding = 6;
+            if (left < padding) left = padding;
+            if (left + menuRect.width + padding > viewportWidth) left = Math.max(padding, viewportWidth - menuRect.width - padding);
+
+            // fallback to open downwards if not enough space above
+            if (top < 8) {
+                top = Math.round(btnRect.bottom + 6 + window.scrollY);
+            }
+
+            kernelMenu.style.left = left + 'px';
+            kernelMenu.style.top  = top + 'px';
+            kernelMenu.style.visibility = 'visible';
+
+            // mark kernel button active
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            kernelBtn.classList.add('active');
+
+            // attach close handlers
+            window.addEventListener('resize', closeKernelMenuBody);
+            window.addEventListener('scroll', closeKernelMenuBody, true);
+            document.addEventListener('click', bodyClickCloseHandler);
+            document.addEventListener('keydown', escCloseHandler);
+            });
+        });
+        }
+
+        function closeKernelMenuBody() {
+        // only act if menu is currently in body
+        if (kernelMenu.parentElement === document.body) {
+            // hide menu using class (so CSS rules take effect)
+            kernelMenu.classList.add('hidden');
+            kernelMenu.classList.remove('body-anchored');
+
+            // clear inline positioning and rendering overrides we set earlier
+            kernelMenu.style.left = '';
+            kernelMenu.style.top = '';
+            kernelMenu.style.visibility = '';
+            kernelMenu.style.display = '';  // <-- important to clear
+            kernelMenu.style.position = '';
+
+            // move it back into toolbar DOM so structure remains tidy
+            kernelCategory.appendChild(kernelMenu);
+
+            // cleanup listeners
+            window.removeEventListener('resize', closeKernelMenuBody);
+            window.removeEventListener('scroll', closeKernelMenuBody, true);
+            document.removeEventListener('click', bodyClickCloseHandler);
+            document.removeEventListener('keydown', escCloseHandler);
+        }
+
+        // clear visual active state
+        kernelBtn.classList.remove('active');
+        }
+
+        function bodyClickCloseHandler(e) {
+        if (!kernelMenu.contains(e.target) && !kernelBtn.contains(e.target)) {
+            closeKernelMenuBody();
+        }
+        }
+
+        function escCloseHandler(e) {
+        if (e.key === 'Escape') closeKernelMenuBody();
+        }
+
+        // toggle handler on the kernel button
+        kernelBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // avoid immediate click-close
+        openKernelMenuBody();
+        });
+
+        // menu item handlers: close menu then open operation
+        kernelMenu.querySelectorAll('.kernel-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const operation = item.dataset.op;
+
+            // close menu first (restores DOM)
+            closeKernelMenuBody();
+
+            // then run existing UI flow
+            if (typeof openOperationPanel === 'function') {
+            openOperationPanel(operation, 'kernel');
+            } else {
+            console.warn('openOperationPanel function not found in uiHelpers.js');
+            }
+        });
+        });
+    } // end guard
+    }
 }
 
 // Panel control handlers
