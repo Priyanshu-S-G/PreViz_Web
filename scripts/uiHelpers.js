@@ -111,47 +111,50 @@ function getOperationMetadata(operation, category) {
         // Edge Detection
         sobel: {
             title: 'SOBEL EDGE DETECTION',
-            description: 'Gradient-based edge detector',
+            description: 'Gradient-based edge detector (choose directions + kernel)',
             controls: [
-                { type: 'slider', id: 'kernel-size', label: 'Kernel Size', min: 1, max: 7, step: 2, value: 3, hint: 'Usually 3 or 5' },
-                { type: 'slider', id: 'threshold', label: 'Threshold', min: 0, max: 255, step: 1, value: 50 }
+                { type: 'checkbox', id: 'use-x', label: 'Detect X direction', checked: true },
+                { type: 'checkbox', id: 'use-y', label: 'Detect Y direction', checked: true },
+                { type: 'slider',   id: 'kernel-size', label: 'Kernel size (odd)', min: 1, max: 7, step: 2, value: 3, hint: '3 or 5 recommended' }
+            ]
+        },
+        prewitt: {
+            title: 'PREWITT EDGE DETECTION',
+            description: 'Simple gradient filter (prewitt)',
+            controls: [
+                { type: 'checkbox', id: 'use-x', label: 'Detect X direction', checked: true },
+                { type: 'checkbox', id: 'use-y', label: 'Detect Y direction', checked: true }
             ]
         },
         canny: {
             title: 'CANNY EDGE DETECTION',
             description: 'Multi-stage edge detector with hysteresis',
             controls: [
-                { type: 'slider', id: 'threshold1', label: 'Lower Threshold', min: 0, max: 255, step: 1, value: 50 },
-                { type: 'slider', id: 'threshold2', label: 'Upper Threshold', min: 0, max: 255, step: 1, value: 150 },
-                { type: 'slider', id: 'aperture', label: 'Aperture Size', min: 3, max: 7, step: 2, value: 3, hint: 'Sobel kernel size' },
-                { type: 'checkbox', id: 'l2-gradient', label: 'Use L2 Gradient', checked: true }
-            ]
-        },
-        prewitt: {
-            title: 'PREWITT EDGE DETECTION',
-            description: 'Simple gradient operator',
-            controls: [
-                { type: 'slider', id: 'threshold', label: 'Threshold', min: 0, max: 255, step: 1, value: 50 }
+                { type: 'slider', id: 'low-threshold',  label: 'Lower Threshold', min: 0, max: 255, step: 1, value: 50 },
+                { type: 'slider', id: 'high-threshold', label: 'Upper Threshold', min: 0, max: 255, step: 1, value: 150 }
             ]
         },
         laplace: {
-            title: 'LAPLACIAN EDGE DETECTION',
-            description: 'Second derivative edge detector',
+            title: 'LAPLACIAN',
+            description: 'Laplacian operator (fixed ksize = 3)',
             controls: [
-                { type: 'slider', id: 'kernel-size', label: 'Kernel Size', min: 1, max: 7, step: 2, value: 3 },
-                { type: 'slider', id: 'threshold', label: 'Threshold', min: 0, max: 255, step: 1, value: 50 }
+                { type: 'info', text: 'Kernel size fixed to 3 in current implementation' }
+            ]
+        },
+        log: {
+            title: 'LoG (Laplacian of Gaussian)',
+            description: 'LoG (fixed ksize = 5)',
+            controls: [
+                { type: 'info', text: 'Kernel size fixed to 5 in current implementation' }
             ]
         },
         harris: {
             title: 'HARRIS CORNER DETECTION',
-            description: 'Detect corner points in image',
+            description: 'Corner detector (block size, Harris k, threshold)',
             controls: [
-                { type: 'slider', id: 'block-size', label: 'Block Size', min: 2, max: 31, step: 1, value: 2, hint: 'Neighbourhood size' },
-                { type: 'slider', id: 'aperture', label: 'Aperture Size', min: 3, max: 7, step: 2, value: 3, hint: 'Sobel kernel' },
-                { type: 'slider', id: 'k', label: 'K Parameter', min: 0.01, max: 0.10, step: 0.01, value: 0.04, hint: 'Harris detector free parameter' },
-                { type: 'slider', id: 'threshold', label: 'Threshold', min: 0.001, max: 0.1, step: 0.001, value: 0.01 },
-                { type: 'checkbox', id: 'show-overlay', label: 'Show corner overlay', checked: true },
-                { type: 'color', id: 'corner-color', label: 'Corner Color', value: '#ff0000' }
+                { type: 'slider', id: 'block-size', label: 'Block size', min: 1, max: 7, step: 1, value: 2 },
+                { type: 'slider', id: 'k-param',    label: 'Harris k (0.01 - 0.2)', min: 0.01, max: 0.2, step: 0.01, value: 0.04 },
+                { type: 'slider', id: 'threshold',  label: 'Corner threshold', min: 1, max: 500, step: 1, value: 100 }
             ]
         },
         

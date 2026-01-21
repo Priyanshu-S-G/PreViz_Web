@@ -1,9 +1,3 @@
-// script.js - glue (placeholder)
-/*
-function initEditor(){ console.log('initEditor placeholder'); }
-document.addEventListener('DOMContentLoaded', initEditor);
-*/
-
 // Main application logic for PreViz editor
 
 // Global flag to track OpenCV status
@@ -554,6 +548,41 @@ function previewCurrentOperation() {
                 }
                 break;
             
+            // Edge operations
+            case 'sobel':
+                const useX = params['use-x'] !== false;
+                const useY = params['use-y'] !== false;
+                const sobelKsize = params['kernel-size'] || 3;
+                result = sobelEdge(srcMat, useX, useY, sobelKsize);
+                break;
+            
+            case 'prewitt':
+                const prewittX = params['use-x'] !== false;
+                const prewittY = params['use-y'] !== false;
+                result = prewittEdge(srcMat, prewittX, prewittY);
+                break;
+            
+            case 'canny':
+                const lowThresh = params['low-threshold'] || 50;
+                const highThresh = params['high-threshold'] || 150;
+                result = cannyEdge(srcMat, lowThresh, highThresh);
+                break;
+            
+            case 'laplace':
+                result = laplacianEdge(srcMat); // Fixed ksize=3
+                break;
+            
+            case 'log':
+                result = logEdge(srcMat); // Fixed ksize=5
+                break;
+            
+            case 'harris':
+                const blockSize = params['block-size'] || 2;
+                const kParam = params['k-param'] || 0.04;
+                const threshold = params['threshold'] || 100;
+                result = harrisCorners(srcMat, blockSize, kParam, threshold);
+                break;
+            
             // Add other operations here as they're implemented
             default:
                 alert(`Operation "${operation}" not yet implemented`);
@@ -631,6 +660,41 @@ function applyCurrentOperation() {
                         drawHistogramComparison(srcMat, result);
                     }, 100);
                 }
+                break;
+            
+            // Edge operations
+            case 'sobel':
+                const useX = params['use-x'] !== false;
+                const useY = params['use-y'] !== false;
+                const sobelKsize = params['kernel-size'] || 3;
+                result = sobelEdge(srcMat, useX, useY, sobelKsize);
+                break;
+            
+            case 'prewitt':
+                const prewittX = params['use-x'] !== false;
+                const prewittY = params['use-y'] !== false;
+                result = prewittEdge(srcMat, prewittX, prewittY);
+                break;
+            
+            case 'canny':
+                const lowThresh = params['low-threshold'] || 50;
+                const highThresh = params['high-threshold'] || 150;
+                result = cannyEdge(srcMat, lowThresh, highThresh);
+                break;
+            
+            case 'laplace':
+                result = laplacianEdge(srcMat); // Fixed ksize=3
+                break;
+            
+            case 'log':
+                result = logEdge(srcMat); // Fixed ksize=5
+                break;
+            
+            case 'harris':
+                const blockSize = params['block-size'] || 2;
+                const kParam = params['k-param'] || 0.04;
+                const threshold = params['threshold'] || 100;
+                result = harrisCorners(srcMat, blockSize, kParam, threshold);
                 break;
             
             // Add other operations here as they're implemented
