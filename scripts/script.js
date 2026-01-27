@@ -583,6 +583,50 @@ function previewCurrentOperation() {
                 result = harrisCorners(srcMat, blockSize, kParam, threshold);
                 break;
             
+            // KERNEL FILTERS
+            case 'blur': // Box Filter (editor.html uses 'blur' for Box Filter)
+                {
+                    const k = parseInt(params['kernel-size']) || 3;
+                    // kernelOps.boxMeanFilter expects (src, ksize)
+                    result = boxMeanFilter(srcMat, k);
+                }
+                break;
+            
+            case 'gaussian':
+                {
+                    const k = parseInt(params['kernel-size']) || 5;
+                    result = gaussianFilter(srcMat, k);
+                }
+                break;
+            
+            case 'median':
+                {
+                    const k = parseInt(params['kernel-size']) || 5;
+                    result = medianFilter(srcMat, k);
+                }
+                break;
+
+            case 'mean': // Weighted Avg (editor data-op = "mean")
+                {
+                    const k = parseInt(params['kernel-size']) || 5;
+                    result = weightedAverageFilter(srcMat, k);
+                }
+                break;
+
+            case 'max':
+                {
+                    const k = parseInt(params['kernel-size']) || 3;
+                    result = maxFilter(srcMat, k);
+                }
+                break;
+
+            case 'min':
+                {
+                    const k = parseInt(params['kernel-size']) || 3;
+                    result = minFilter(srcMat, k);
+                }
+                break;
+            
             // Add other operations here as they're implemented
             default:
                 alert(`Operation "${operation}" not yet implemented`);

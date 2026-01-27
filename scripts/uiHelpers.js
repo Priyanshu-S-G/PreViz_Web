@@ -76,7 +76,7 @@ function getOperationMetadata(operation, category) {
             description: 'Weighted blur using Gaussian kernel',
             controls: [
                 { type: 'slider', id: 'kernel-size', label: 'Kernel Size', min: 3, max: 21, step: 2, value: 5, hint: 'Must be odd' },
-                { type: 'slider', id: 'sigma', label: 'Sigma (σ)', min: 0.1, max: 10, step: 0.1, value: 1.0, hint: 'Standard deviation' }
+                //{ type: 'slider', id: 'sigma', label: 'Sigma (σ)', min: 0.1, max: 10, step: 0.1, value: 1.0, hint: 'Standard deviation' }
             ]
         },
         median: {
