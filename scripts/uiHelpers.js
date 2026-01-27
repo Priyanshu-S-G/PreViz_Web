@@ -76,7 +76,7 @@ function getOperationMetadata(operation, category) {
             description: 'Weighted blur using Gaussian kernel',
             controls: [
                 { type: 'slider', id: 'kernel-size', label: 'Kernel Size', min: 3, max: 21, step: 2, value: 5, hint: 'Must be odd' },
-                //{ type: 'slider', id: 'sigma', label: 'Sigma (Ïƒ)', min: 0.1, max: 10, step: 0.1, value: 1.0, hint: 'Standard deviation' }
+                //{ type: 'slider', id: 'sigma', label: 'Sigma (σ)', min: 0.1, max: 10, step: 0.1, value: 1.0, hint: 'Standard deviation' }
             ]
         },
         median: {
@@ -161,35 +161,35 @@ function getOperationMetadata(operation, category) {
         // Morphological Operations
         dilate: {
             title: 'DILATION',
-            description: 'Expand white regions (converts to grayscale automatically)',
+            description: 'Expand white regions',
             controls: [
                 { type: 'slider', id: 'kernel-size', label: 'Kernel Size', min: 1, max: 21, step: 2, value: 5, hint: 'Must be odd' }
             ]
         },
         erode: {
             title: 'EROSION',
-            description: 'Shrink white regions (converts to grayscale automatically)',
+            description: 'Shrink white regions',
             controls: [
                 { type: 'slider', id: 'kernel-size', label: 'Kernel Size', min: 1, max: 21, step: 2, value: 5, hint: 'Must be odd' }
             ]
         },
         open: {
             title: 'OPENING',
-            description: 'Erosion followed by dilation (converts to grayscale automatically)',
+            description: 'Erosion followed by dilation',
             controls: [
                 { type: 'slider', id: 'kernel-size', label: 'Kernel Size', min: 1, max: 21, step: 2, value: 5, hint: 'Must be odd' }
             ]
         },
         close: {
             title: 'CLOSING',
-            description: 'Dilation followed by erosion (converts to grayscale automatically)',
+            description: 'Dilation followed by erosion',
             controls: [
                 { type: 'slider', id: 'kernel-size', label: 'Kernel Size', min: 1, max: 21, step: 2, value: 5, hint: 'Must be odd' }
             ]
         },
         holefill: {
             title: 'HOLE FILLING',
-            description: 'Fill holes in binary objects (converts to grayscale automatically)',
+            description: 'Fill holes in binary objects',
             controls: [
                 { type: 'slider', id: 'threshold', label: 'Binary Threshold', min: 0, max: 255, step: 1, value: 127, hint: 'Threshold for binarization' }
             ]
@@ -236,7 +236,7 @@ function getOperationMetadata(operation, category) {
             description: 'Gray-Level Co-occurrence Matrix features',
             controls: [
                 { type: 'slider', id: 'distance', label: 'Distance', min: 1, max: 10, step: 1, value: 1, hint: 'Pixel offset' },
-                { type: 'select', id: 'angle', label: 'Angle', options: ['0Â° (Horizontal)', '45Â° (Diagonal)', '90Â° (Vertical)', '135Â° (Anti-diagonal)'], value: '0Â° (Horizontal)' },
+                { type: 'select', id: 'angle', label: 'Angle', options: ['0° (Horizontal)', '45° (Diagonal)', '90° (Vertical)', '135° (Anti-diagonal)'], value: '0° (Horizontal)' },
                 { type: 'slider', id: 'levels', label: 'Quantization Levels', min: 4, max: 32, step: 1, value: 8, hint: 'Gray levels' },
                 { type: 'checkbox', id: 'show-matrix', label: 'Show GLCM matrix', checked: false },
                 { type: 'checkboxgroup', label: 'Features to compute:', options: [

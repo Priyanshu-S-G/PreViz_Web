@@ -107,7 +107,7 @@ function loadImageFromDataURL(dataURL) {
             // Clean up
             mat.delete();
             
-            console.log(`[script.js] âœ“ Image loaded successfully!`);
+            console.log(`[script.js] ✓ Image loaded successfully!`);
             console.log(`[script.js] Full-resolution stored: ${img.width}x${img.height}`);
             console.log(`[script.js] Display scaled to: ${scaledWidth.toFixed(0)}x${scaledHeight.toFixed(0)}`);
         } catch (error) {
@@ -666,7 +666,7 @@ function previewCurrentOperation() {
             // Clean up
             result.delete();
             
-            console.log(`[script.js] âœ“ Preview complete`);
+            console.log(`[script.js] ✓ Preview complete`);
         }
         
     } catch (error) {
@@ -855,7 +855,7 @@ function applyCurrentOperation() {
             
             // Don't delete result - it's now stored in state
             
-            console.log(`[script.js] âœ“ Operation applied`);
+            console.log(`[script.js] ✓ Operation applied`);
         }
         
     } catch (error) {
