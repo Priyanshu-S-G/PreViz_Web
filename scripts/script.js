@@ -107,7 +107,7 @@ function loadImageFromDataURL(dataURL) {
             // Clean up
             mat.delete();
             
-            console.log(`[script.js] ✓ Image loaded successfully!`);
+            console.log(`[script.js] âœ“ Image loaded successfully!`);
             console.log(`[script.js] Full-resolution stored: ${img.width}x${img.height}`);
             console.log(`[script.js] Display scaled to: ${scaledWidth.toFixed(0)}x${scaledHeight.toFixed(0)}`);
         } catch (error) {
@@ -583,6 +583,32 @@ function previewCurrentOperation() {
                 result = harrisCorners(srcMat, blockSize, kParam, threshold);
                 break;
             
+            // Morphological operations
+            case 'dilate':
+                const dilateKsize = params['kernel-size'] || 5;
+                result = dilateImage(srcMat, dilateKsize);
+                break;
+            
+            case 'erode':
+                const erodeKsize = params['kernel-size'] || 5;
+                result = erodeImage(srcMat, erodeKsize);
+                break;
+            
+            case 'open':
+                const openKsize = params['kernel-size'] || 5;
+                result = openingImage(srcMat, openKsize);
+                break;
+            
+            case 'close':
+                const closeKsize = params['kernel-size'] || 5;
+                result = closingImage(srcMat, closeKsize);
+                break;
+            
+            case 'holefill':
+                const holefillThresh = params['threshold'] || 127;
+                result = holeFillImage(srcMat, holefillThresh);
+                break;
+            
             // KERNEL FILTERS
             case 'blur': // Box Filter (editor.html uses 'blur' for Box Filter)
                 {
@@ -640,7 +666,7 @@ function previewCurrentOperation() {
             // Clean up
             result.delete();
             
-            console.log(`[script.js] ✓ Preview complete`);
+            console.log(`[script.js] âœ“ Preview complete`);
         }
         
     } catch (error) {
@@ -741,6 +767,76 @@ function applyCurrentOperation() {
                 result = harrisCorners(srcMat, blockSize, kParam, threshold);
                 break;
             
+            // KERNEL FILTERS
+            case 'blur': // Box Filter (editor.html uses 'blur' for Box Filter)
+                {
+                    const k = parseInt(params['kernel-size']) || 3;
+                    // kernelOps.boxMeanFilter expects (src, ksize)
+                    result = boxMeanFilter(srcMat, k);
+                }
+                break;
+            
+            case 'gaussian':
+                {
+                    const k = parseInt(params['kernel-size']) || 5;
+                    result = gaussianFilter(srcMat, k);
+                }
+                break;
+            
+            case 'median':
+                {
+                    const k = parseInt(params['kernel-size']) || 5;
+                    result = medianFilter(srcMat, k);
+                }
+                break;
+
+            case 'mean': // Weighted Avg (editor data-op = "mean")
+                {
+                    const k = parseInt(params['kernel-size']) || 5;
+                    result = weightedAverageFilter(srcMat, k);
+                }
+                break;
+
+            case 'max':
+                {
+                    const k = parseInt(params['kernel-size']) || 3;
+                    result = maxFilter(srcMat, k);
+                }
+                break;
+
+            case 'min':
+                {
+                    const k = parseInt(params['kernel-size']) || 3;
+                    result = minFilter(srcMat, k);
+                }
+                break;
+            
+            // Morphological operations
+            case 'dilate':
+                const dilateKsize = params['kernel-size'] || 5;
+                result = dilateImage(srcMat, dilateKsize);
+                break;
+            
+            case 'erode':
+                const erodeKsize = params['kernel-size'] || 5;
+                result = erodeImage(srcMat, erodeKsize);
+                break;
+            
+            case 'open':
+                const openKsize = params['kernel-size'] || 5;
+                result = openingImage(srcMat, openKsize);
+                break;
+            
+            case 'close':
+                const closeKsize = params['kernel-size'] || 5;
+                result = closingImage(srcMat, closeKsize);
+                break;
+            
+            case 'holefill':
+                const holefillThresh = params['threshold'] || 127;
+                result = holeFillImage(srcMat, holefillThresh);
+                break;
+            
             // Add other operations here as they're implemented
             default:
                 alert(`Operation "${operation}" not yet implemented`);
@@ -759,7 +855,7 @@ function applyCurrentOperation() {
             
             // Don't delete result - it's now stored in state
             
-            console.log(`[script.js] ✓ Operation applied`);
+            console.log(`[script.js] âœ“ Operation applied`);
         }
         
     } catch (error) {
